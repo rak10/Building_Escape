@@ -1,14 +1,27 @@
 #######################
-#Unreal Geneated Files#
+#
+ Unreal Geneated Files 
+#
 #######################
+
 */Build
+
 */Binaries
+
 */DerivedDataCache
+
 */Intermediate
+
 */Saved
-BuildingEscape/Content/StarterContent/
+BuildingEscape
+/Content/
+/StarterContent/
+
 
 ###################
-#VS Geneated Files#
+#
+ VS Geneated Files #
+
 ###################
+
 *.VC.db
