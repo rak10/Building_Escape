@@ -13,15 +13,15 @@
 */Intermediate
 
 */Saved
-BuildingEscape
-/Content/
-/StarterContent/
 
-
+BuildingEscape/Content/StarterContent/Textures
+BuildingEscape/Content/StarterContent/Textures/HDRI
 ###################
 #
- VS Geneated Files #
+#VS Geneated Files #
 
-###################
+####################
 
 *.VC.db
+
+*.suo
