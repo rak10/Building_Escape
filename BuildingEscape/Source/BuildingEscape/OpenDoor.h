@@ -31,6 +31,6 @@ private:
 	ATriggerVolume* PressurePlate;
 
 	
-	AActor* ActorThatOpens;  //pawn inherits from actor
+	AActor* ActorThatOpens;  //pawn inherits from actor so that we can store something in it if we need
 
 };
