@@ -20,9 +20,11 @@ UOpenDoor::UOpenDoor()
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
+	Owner = GetOwner();
 	//pawn is an Actor, so we can store a pointer to a pawn which is a pointer to an AActor. And since
 	//pawn inherits from AActor it is ok.
 	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
+	
 
 	//OpenDoor();
 
@@ -30,16 +32,23 @@ void UOpenDoor::BeginPlay()
 
 void UOpenDoor::OpenDoor()
 {
-	//Find the owning actor
-	AActor* Owner = GetOwner();
-
+	
 	// Create a rotator
-	FRotator NewRotation = FRotator(0.0f, 50.0f, 0.0f);
+	FRotator NewRotation = FRotator(0.0f, OpenAngle, 0.0f);
+
+	// Set door rotation
+	Owner->SetActorRotation(NewRotation); //We can put Frotator directly here
+}
+
+void UOpenDoor::CloseDoor()
+{
+	
+	// Create a rotator
+	FRotator NewRotation = FRotator(0.0f, 0.0f, 0.0f);
 
 	// Set door rotation
 	Owner->SetActorRotation(NewRotation);
 }
-
 
 // Called every frame
 void UOpenDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
@@ -52,6 +61,14 @@ void UOpenDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 
 	//If the ActorThatOpens is in volume
 	OpenDoor();
+	LastDoorOpenTime = GetWorld()->GetTimeSeconds();
+
 	}
+
+	//Check if it's time to close door
+	if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime > DoorCloseDelay)
+	{
+		CloseDoor();
+	 }
 }
 
