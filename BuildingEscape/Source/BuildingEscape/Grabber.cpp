@@ -51,9 +51,28 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 	//FVector LineTraceEnd = PlayerViewPointLocation + FVector(0.f, 0.f, 50.0f);
 	DrawDebugLine(GetWorld(), PlayerViewPointLocation, LineTraceEnd, FColor(255, 0, 0), false, 0.f, 0.f, 10.0f);
 
+	///Setup query parameters
+	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
+
 	//ray-cast out to reach distance (perhaps we need provate variable to store that reach
+	//LineTraceSingleByObject returns boolean but it needs an FHIT result, so we create it
+	//But it is an OUT parameter as it gives us the values so we mark it as an OUT. Its like we give the function an
+	//envelope which has arguments, and it gives back the values but in that same envelope
+	///To find out what is the kind of argument we need, we can just type it in and intelliSense will give us some info
+	FHitResult Hit;
+	GetWorld()->LineTraceSingleByObjectType(
+		OUT Hit,
+		PlayerViewPointLocation,
+		LineTraceEnd,
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
+		TraceParameters
+		);
 
-
+	AActor* ActorHit = Hit.GetActor();
+	if (ActorHit)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Line Trace hit; %s "), *(ActorHit->GetName()))
+	}
 	//see what we hit
 }
 
