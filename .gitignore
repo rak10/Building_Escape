@@ -25,3 +25,5 @@ BuildingEscape/Content/StarterContent/Textures/HDRI
 *.VC.db
 
 *.suo
+*.VC.opendb
+*.sln

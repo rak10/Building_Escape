@@ -35,7 +35,7 @@ void UGrabber::FindPhysicsHandleComponent()
 
 	///Look for attached Physics Handle
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if (PhysicsHandle)
+	if (PhysicsHandle == nullptr)
 	{
 		//Physics handle is found
 	}
@@ -52,14 +52,8 @@ void UGrabber::SetupInputComponent()
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (InputComponent)
 	{
-		//Input Component is found
-		UE_LOG(LogTemp, Warning, TEXT("Input component found"))
-
-			///Bind the input axis
-
-			InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		InputComponent->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
 		InputComponent->BindAction("Grab", IE_Released, this, &UGrabber::Release);
-
 	}
 	else
 	{
@@ -68,12 +62,9 @@ void UGrabber::SetupInputComponent()
 }
 
 
-
-
 void UGrabber::Grab()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Grab pressed!!!"))
-
+	
 	///LINE TRACE try and reach any actors with physics body collision channel set
 	auto HitResult = GetFirstPhysicsBodyInReach();
 	auto ComponentToGrab = HitResult.GetComponent();
@@ -95,12 +86,7 @@ void UGrabber::Grab()
 
 void UGrabber::Release()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Released!!!"))
-
-		PhysicsHandle->ReleaseComponent();
-
-	///TODO release physics handle
-
+	PhysicsHandle->ReleaseComponent();
 }
 
 
@@ -109,51 +95,19 @@ void UGrabber::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-	FVector PlayerViewPointLocation;
-	FRotator PlayerViewPointRotation;
-	//Void getter GetPlayerViewpoint takes two arguments, and puts the values in them. We know it puts values in them since it is a void getter, 
-	//so it gets values but it places them in the arguments passed to it, which means they will constantly change
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
-
-	//Log out to test
-	//FString ViewPoint = GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint().ToString();
-	//FString GrabberObjectPos = GetOwner()->GetTransform().ToString();
-	/*UE_LOG(LogTemp, Warning, TEXT("The location is: %s, Position is: %s"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString())*/
-
-
-	//draw a red trace in world to visualise
-	FVector LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector()*Reach);
-
-
+			
 	// if hte physics handle is attached
 	if (PhysicsHandle->GrabbedComponent)
 	{
 
 		//move the object we are holding
-		PhysicsHandle->SetTargetLocation(LineTraceEnd);
+		PhysicsHandle->SetTargetLocation(GetReachLineEnd());
 	}
 
 }
 
 const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
 {
-	// Get player viewpoint this tick
-	FVector PlayerViewPointLocation;
-	FRotator PlayerViewPointRotation;
-	//Void getter GetPlayerViewpoint takes two arguments, and puts the values in them. We know it puts values in them since it is a void getter, 
-	//so it gets values but it places them in the arguments passed to it, which means they will constantly change
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
-
-	//Log out to test
-	//FString ViewPoint = GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint().ToString();
-	//FString GrabberObjectPos = GetOwner()->GetTransform().ToString();
-	/*UE_LOG(LogTemp, Warning, TEXT("The location is: %s, Position is: %s"), *PlayerViewPointLocation.ToString(), *PlayerViewPointRotation.ToString())*/
-
-
-	//draw a red trace in world to visualise
-	FVector LineTraceEnd = PlayerViewPointLocation + (PlayerViewPointRotation.Vector()*Reach);
-	//FVector LineTraceEnd = PlayerViewPointLocation + FVector(0.f, 0.f, 50.0f);
-	//DrawDebugLine(GetWorld(), PlayerViewPointLocation, LineTraceEnd, FColor(255, 0, 0), false, 0.f, 0.f, 10.0f);
 
 	///Setup query parameters
 	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
@@ -163,20 +117,41 @@ const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
 	//But it is an OUT parameter as it gives us the values so we mark it as an OUT. Its like we give the function an
 	//envelope which has arguments, and it gives back the values but in that same envelope
 	///To find out what is the kind of argument we need, we can just type it in and intelliSense will give us some info
-	FHitResult Hit;
+	FHitResult HitResult;
 	GetWorld()->LineTraceSingleByObjectType(
-		OUT Hit,
-		PlayerViewPointLocation,
-		LineTraceEnd,
+		OUT HitResult,
+		GetReachLineStart(),
+		GetReachLineEnd(),
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		TraceParameters
 	);
 
-	AActor* ActorHit = Hit.GetActor();
-	if (ActorHit)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Line Trace hit; %s "), *(ActorHit->GetName()))
-	}
-	//see what we hit
-	return Hit;
+		return HitResult;
+}
+
+FVector UGrabber::GetReachLineStart()
+{
+	///Get player viewpoint this tick
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+	//Void getter GetPlayerViewpoint takes two arguments, and puts the values in them. We know it puts values in them since it is a void getter, 
+	//so it gets values but it places them in the arguments passed to it, which means they will constantly change
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
+
+	return PlayerViewPointLocation;
+
+}
+
+
+FVector UGrabber::GetReachLineEnd()
+{
+	///Get player viewpoint this tick
+	FVector PlayerViewPointLocation;
+	FRotator PlayerViewPointRotation;
+	//Void getter GetPlayerViewpoint takes two arguments, and puts the values in them. We know it puts values in them since it is a void getter, 
+	//so it gets values but it places them in the arguments passed to it, which means they will constantly change
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
+
+	return PlayerViewPointLocation + (PlayerViewPointRotation.Vector()*Reach);
+
 }

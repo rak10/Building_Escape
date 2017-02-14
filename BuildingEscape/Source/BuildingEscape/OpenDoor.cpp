@@ -25,9 +25,6 @@ void UOpenDoor::BeginPlay()
 	//pawn inherits from AActor it is ok.
 	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
 	
-
-	//OpenDoor();
-
 }
 
 void UOpenDoor::OpenDoor()
