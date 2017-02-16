@@ -22,6 +22,11 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	Owner = GetOwner();
+	if (!PressurePlate) {
+	
+		UE_LOG(LogTemp, Error, TEXT("%s missing pressure plate"), *GetOwner()->GetName())
+	
+	}
 	//pawn is an Actor, so we can store a pointer to a pawn which is a pointer to an AActor. And since
 	//pawn inherits from AActor it is ok.
 	//ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
@@ -77,6 +82,7 @@ float UOpenDoor::GetTotalMassOfActorsOnPlate()
 
 	//find over lapping actors
 	TArray<AActor*> OverlappingActors;
+	if (!PressurePlate) { return TotalMass; }
 	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
 
 	//iterate through them adding their masses
